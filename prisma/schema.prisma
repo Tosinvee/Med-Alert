@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient{
+  id                    Int           @id @default(autoincrement())
+  createdAt             DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime      @default(now()) @db.Timestamptz(6)
+  reference             String        @unique
+  first_name            String?
+  last_name             String?
+  dob                   String?
+  gender                String?
+  email                 String        @unique
+  email_verified        Boolean       @default(false)
+  password              String
+  phone_number          String?
+  address               String? 
+  state                 String?
+  latitude              Float
+  logitude              Float
+  deviceTokenId         String?
+
+  medicalProfile        MedicalProfile?
+  emergencies           Emergency[]
+  DeviceToken           DeviceToken[]
+
+}
+
+model MedicalProfile {
+  id             Int          @id @default(autoincrement())
+  patientId      Int          @unique
+  patient        Patient      @relation(fields: [patientId], references: [id])
+  conditions     String[] //  medical conditions like ulcer 
+  allergies      String[] 
+  bloodType      String?  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Medic {
+  id            Int             @id @default(autoincrement())
+  reference     String          @unique
+  name          String
+  email         String          @unique
+  phone         String
+  password      String
+  latitude      Float
+  longitude     Float
+  isAvailable   Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  deviceTokens  DeviceToken[]
+  dispatches    Dispatch[]
+}
+
+model Emergency {
+  id               Int          @id @default(autoincrement())
+  reference        String       @unique
+  patientId        Int          @unique
+  patient          Patient      @relation(fields: [patientId], references: [id])
+  type             String
+  description      String?
+  locationLat      Float
+  locationLng      Float
+  createdAt        DateTime    @default(now())
+  resolvedAt       DateTime?
+
+  dispatches       Dispatch[]
+}
+
+model Dispatch {
+  id            Int              @id @default(autoincrement())
+  emergencyId   Int
+  emergency     Emergency        @relation(fields: [emergencyId], references: [id])
+  medicId       Int
+  medic         Medic            @relation(fields: [medicId], references: [id])
+  status        DispatchStatus   @default(PENDING)
+  etaMinutes    Int?
+  respondedAt   DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime         @default(now())
+}
+
+model DeviceToken {
+  id            Int              @id @default(autoincrement())
+  token         String           @unique
+  platform      String   
+  patientId     Int?  
+  medicId       Int?  
+  patient       Patient?         @relation(fields: [patientId], references: [id])
+  medic         Medic?           @relation(fields: [medicId], references: [id])
+  createdAt     DateTime         @default(now())
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   
+  name      String
+  createdAt DateTime @default(now())
+}
+
+enum DispatchStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
