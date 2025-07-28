@@ -14,57 +14,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Patient{
-  id                    Int           @id @default(autoincrement())
-  createdAt             DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime      @default(now()) @db.Timestamptz(6)
-  reference             String        @unique
-  first_name            String?
-  last_name             String?
-  dob                   String?
-  gender                String?
-  email                 String        @unique
-  email_verified        Boolean       @default(false)
-  password              String
-  phone_number          String?
-  address               String? 
-  state                 String?
-  latitude              Float
-  logitude              Float
-  deviceTokenId         String?
+model User {
+  id             Int       @id @default(autoincrement())
+  reference      String    @unique
+  email          String    @unique
+  password       String
+  email_verified Boolean       @default(false)
+  phone_number   String?
+  address        String?
+  state          String?
+  latitude       Float
+  longitude      Float
+  userType       UserType
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  medicalProfile        MedicalProfile?
-  emergencies           Emergency[]
-  DeviceToken           DeviceToken[]
-
+  patient        Patient?
+  medic          Medic?
+  deviceTokens   DeviceToken[]
 }
 
-model MedicalProfile {
-  id             Int          @id @default(autoincrement())
-  patientId      Int          @unique
-  patient        Patient      @relation(fields: [patientId], references: [id])
-  conditions     String[] //  medical conditions like ulcer 
-  allergies      String[] 
-  bloodType      String?  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+model Patient {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique
+  first_name     String?
+  last_name      String?
+  dob            String?
+  gender         String?
+  deviceTokenId  String?
+
+  // Medical info now here directly
+  conditions     String[]  // e.g. ['diabetes', 'ulcer']
+  allergies      String[]  // e.g. ['penicillin']
+  bloodType      String?
+
+  user           User      @relation(fields: [userId], references: [id])
+  emergencies    Emergency[]
 }
 
 model Medic {
-  id            Int             @id @default(autoincrement())
-  reference     String          @unique
-  name          String
-  email         String          @unique
-  phone         String
-  password      String
-  latitude      Float
-  longitude     Float
-  isAvailable   Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id           Int         @id @default(autoincrement())
+  userId       Int         @unique
+  name         String
+  isAvailable  Boolean     @default(true)
 
-  deviceTokens  DeviceToken[]
-  dispatches    Dispatch[]
+  user         User        @relation(fields: [userId], references: [id])
+  dispatches   Dispatch[]
 }
 
 model Emergency {
@@ -99,10 +94,8 @@ model DeviceToken {
   id            Int              @id @default(autoincrement())
   token         String           @unique
   platform      String   
-  patientId     Int?  
-  medicId       Int?  
-  patient       Patient?         @relation(fields: [patientId], references: [id])
-  medic         Medic?           @relation(fields: [medicId], references: [id])
+  userId        Int?  
+  user          User?            @relation(fields: [userId], references: [id])
   createdAt     DateTime         @default(now())
 }
 
@@ -121,5 +114,12 @@ enum DispatchStatus {
   REJECTED
   COMPLETED
   CANCELLED
+}
+
+enum UserType{
+  Patient
+  MEDICS
+  ADMIN
+
 }
 

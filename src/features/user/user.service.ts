@@ -6,6 +6,6 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async findUserByEmail(email: string) {
-    return await this.prisma.patient.findUnique({ where: { email } });
+    return await this.prisma.user.findUnique({ where: { email } });
   }
 }
