@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -19,12 +18,12 @@ model User {
   reference      String    @unique
   email          String    @unique
   password       String
-  email_verified Boolean       @default(false)
+  email_verified Boolean?       @default(false)
   phone_number   String?
   address        String?
   state          String?
-  latitude       Float
-  longitude      Float
+  latitude       Float?
+  longitude      Float?
   userType       UserType
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -43,9 +42,8 @@ model Patient {
   gender         String?
   deviceTokenId  String?
 
-  // Medical info now here directly
-  conditions     String[]  // e.g. ['diabetes', 'ulcer']
-  allergies      String[]  // e.g. ['penicillin']
+  conditions     String[]  // e.g. ulcer
+  allergies      String[]  // e.g. penicillin
   bloodType      String?
 
   user           User      @relation(fields: [userId], references: [id])
@@ -99,6 +97,13 @@ model DeviceToken {
   createdAt     DateTime         @default(now())
 }
 
+model Otp{
+  id            Int              @id @default(autoincrement())
+  otp String 
+  userEmail String
+  expiresAt DateTime
+}
+
 model Admin {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -116,8 +121,8 @@ enum DispatchStatus {
   CANCELLED
 }
 
-enum UserType{
-  Patient
+enum UserType {
+  PATIENT
   MEDICS
   ADMIN
 
