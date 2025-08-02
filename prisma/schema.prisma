@@ -22,11 +22,14 @@ model User {
   phone_number   String?
   address        String?
   state          String?
+  city           String?
   latitude       Float?
   longitude      Float?
   userType       UserType
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  deviceTokenId  String?
+
 
   patient        Patient?
   medic          Medic?
@@ -40,7 +43,6 @@ model Patient {
   last_name      String?
   dob            String?
   gender         String?
-  deviceTokenId  String?
 
   conditions     String[]  // e.g. ulcer
   allergies      String[]  // e.g. penicillin
