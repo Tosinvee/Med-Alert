@@ -165,4 +165,11 @@ export class UserService {
     }
     return user;
   }
+
+  async getUsers() {
+    const users = await this.prisma.user.findMany({
+      include: { patient: true, medic: true },
+    });
+    return users;
+  }
 }

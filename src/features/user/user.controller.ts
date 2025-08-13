@@ -20,9 +20,15 @@ export class UserController {
     return this.userService.updateProfile(user.id, body, userAgent);
   }
 
-  @Get()
+  @Get('/me')
   @UseGuards(JwtAuthGuard)
   async getProfile(@CurrentUser() user: User) {
     return this.userService.getProfile(user.id);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getUsers() {
+    return this.userService.getUsers();
   }
 }

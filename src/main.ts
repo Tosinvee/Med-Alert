@@ -6,6 +6,7 @@ import { environments } from './environments/environment';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.enableCors();
 
   const port = environments.port;
   await app.listen(port, () => Logger.log(`Server listening on port ${port}`));
