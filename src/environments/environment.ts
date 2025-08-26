@@ -12,4 +12,6 @@ export const environments = {
   jwtSecret: env.JWT_SECRET,
   OTP_EXPIRATION_IN_SECONDS: 300,
   OTP_EXPIRATION_IN_MINUTES: 5,
+  redis_host: env.REDIS_HOST,
+  redis_port: env.REDIS_PORT,
 };
