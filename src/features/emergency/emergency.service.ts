@@ -4,7 +4,7 @@ import { FirebaseService } from '../notification/firebase.service';
 import { WebsocketGateway } from '../websocket/websocket.gateway';
 import { CreateEmergencyDto } from './dto/create-emergency.dto';
 import { generateCustomId } from '../shared/utils/generate-customId';
-import { BullmqService } from '../shared/events/bullMq';
+import { BullmqService } from '../shared/queues/bullMq';
 
 @Injectable()
 export class EmergencyService {

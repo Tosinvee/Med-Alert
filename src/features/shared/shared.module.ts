@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RetryDispatchProcessor } from './events/retry-dispatch.processor';
+import { RetryDispatchProcessor } from './queues/retry-dispatch.processor';
 import { PrismaService } from '../prisma/prisma.service';
 import { WebsocketGateway } from '../websocket/websocket.gateway';
 import { FirebaseService } from '../notification/firebase.service';
