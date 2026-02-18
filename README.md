@@ -1,5 +1,4 @@
 🚑 MedAlert – Real-Time Emergency Dispatch System
-📌 Overview
 
 MedAlert is a scalable real-time emergency response backend system built with NestJS.
 It allows patients to request emergency medical assistance and automatically dispatches the nearest available medics using WebSockets and transactional safety.
@@ -18,8 +17,6 @@ PostgreSQL
 Key Principles:
 
 Clean layered architecture
-
-No circular dependencies
 
 Real-time event-driven design
 
@@ -44,6 +41,7 @@ Cache / PubSub (Planned): Redis
 Push Notifications (Planned): Firebase
 
 🚨 Core Features (MVP)
+
 1️⃣ Emergency Creation
 
 Patient sends emergency request
@@ -87,6 +85,7 @@ Emergency marked ASSIGNED
 Other dispatches cancelled
 
 🧠 Database Models
+
 Emergency
 
 - id
