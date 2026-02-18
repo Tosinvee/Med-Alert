@@ -1,69 +1,138 @@
-MedAlert - Emergency Medical Response Platform
+🚑 MedAlert – Real-Time Emergency Dispatch System
+📌 Overview
 
-This is the backend service for MedAlert, a real-time medical emergency response platform built with NestJS, Prisma, PostgreSQL, Redis, BullMQ, Firebase, and WebSockets.
+MedAlert is a scalable real-time emergency response backend system built with NestJS.
+It allows patients to request emergency medical assistance and automatically dispatches the nearest available medics using WebSockets and transactional safety.
 
-Tech Stack
+🏗 Architecture
+Gateway (WebSocket)
+↓
+DispatchService
+↓
+EmergencyService
+↓
+Prisma ORM
+↓
+PostgreSQL
 
-NestJS - Backend framework
+Key Principles:
 
-Prisma - ORM for PostgreSQL
+Clean layered architecture
 
-PostgreSQL - Relational DB
+No circular dependencies
 
-Redis - Location tracking & job queue
+Real-time event-driven design
 
-BullMQ - Retry logic for dispatching
+Transactional race-condition protection
 
-Socket.IO - WebSocket real-time alerts
+Scalable dispatch model
 
-Firebase FCM - Push notifications to medics
+⚙️ Tech Stack
 
-## Description
+Framework: NestJS
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Database: PostgreSQL
 
-## Installation
+ORM: Prisma
 
-```bash
-$ npm install
-```
+Real-time: Socket.IO (WebSockets)
 
-## Running the app
+Queue (Planned): BullMQ
 
-```bash
-# development
-$ npm run start
+Cache / PubSub (Planned): Redis
 
-# watch mode
-$ npm run start:dev
+Push Notifications (Planned): Firebase
 
-# production mode
-$ npm run start:prod
-```
+🚨 Core Features (MVP)
+1️⃣ Emergency Creation
 
-## Test
+Patient sends emergency request
 
-```bash
-# unit tests
-$ npm run test
+Emergency record created immediately
 
-# e2e tests
-$ npm run test:e2e
+Linked to patient and geolocation
 
-# test coverage
-$ npm run test:cov
-```
+2️⃣ Smart Medic Dispatch
 
-## Support
+Finds top 3 nearest available medics
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Creates dispatch records
 
-## Stay in touch
+Sends real-time notifications
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+3️⃣ Race Condition Protection
 
-## License
+First medic to accept wins
 
-Nest is [MIT licensed](LICENSE).
+Transaction ensures single assignment
+
+Other dispatches automatically cancelled
+
+🔄 Dispatch Flow
+
+Patient sends service_request
+
+Emergency is created
+
+Top 3 nearest medics selected
+
+Dispatch records created
+
+Medics notified via WebSocket
+
+First medic to accept:
+
+Emergency marked ASSIGNED
+
+Other dispatches cancelled
+
+🧠 Database Models
+Emergency
+
+- id
+- reference
+- patientId
+- status (PENDING | ASSIGNED | COMPLETED)
+- assignedMedicId
+- locationLat
+- locationLng
+
+Dispatch
+
+- id
+- emergencyId
+- medicId
+- status (PENDING | ACCEPTED | CANCELLED | EXPIRED)
+
+🛡 Scalability Plan
+
+Redis Pub/Sub for horizontal scaling
+
+BullMQ for dispatch timeout retries
+
+PostGIS for optimized geospatial queries
+
+Firebase fallback for offline medics
+
+🚀 Running the Project
+npm install
+npx prisma migrate dev
+npm run start:dev
+
+📈 Future Enhancements
+
+Dispatch timeout & auto-retry
+
+Live medic tracking
+
+Push notification fallback
+
+Response time analytics
+
+Admin dashboard
+
+👨‍💻 Author
+
+Oluwatosin Bayode
+
+Backend Engineer | Real-Time Systems | Distributed Architecture
