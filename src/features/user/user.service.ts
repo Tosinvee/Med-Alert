@@ -115,7 +115,7 @@ export class UserService {
           bloodType: body.bloodType,
         },
       });
-    } else if (user.userType === 'MEDICS') {
+    } else if (user.userType === 'MEDIC') {
       await this.prisma.medic.upsert({
         where: { id: userId },
         update: {
@@ -157,7 +157,7 @@ export class UserService {
       });
       return { ...user, patient };
     }
-    if (user.userType === 'MEDICS') {
+    if (user.userType === 'MEDIC') {
       const medic = await this.prisma.medic.findUnique({
         where: { userId },
       });

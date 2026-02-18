@@ -1,13 +1,13 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { FirebaseService } from '../../notification/firebase.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { WebsocketGateway } from '../../websocket/websocket.gateway';
+import { EmergencyGateway } from '../../websocket/emergency.gateway';
 
 @Processor('retry-dispatch')
 export class RetryDispatchProcessor extends WorkerHost {
   constructor(
     private prisma: PrismaService,
-    private ws: WebsocketGateway,
+    private ws: EmergencyGateway,
     private notifications: FirebaseService,
   ) {
     super();
@@ -44,12 +44,12 @@ export class RetryDispatchProcessor extends WorkerHost {
         status: 'PENDING',
       },
     });
-    await this.ws.sendToUser(nextMedic.userId, 'newDispatch', newDispatch);
-    await this.notifications.sendToUser(nextMedic.userId, {
-      notification: {
-        title: 'New Emergency',
-        body: 'Please respond immedately',
-      },
-    });
+    //await this.ws.sendToUser(nextMedic.userId, 'newDispatch', newDispatch);
+    // await this.notifications.sendToUser(nextMedic.userId, {
+    //   notification: {
+    //     title: 'New Emergency',
+    //     body: 'Please respond immedately',
+    //   },
+    // });
   }
 }

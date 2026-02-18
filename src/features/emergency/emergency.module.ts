@@ -1,19 +1,24 @@
 import { Module } from '@nestjs/common';
-import { EmergencyService } from './emergency.service';
+import { EmergencyService } from './service/emergency.service';
 import { EmergencyController } from './emergency.controller';
 import { PrismaService } from '../prisma/prisma.service';
-import { WebsocketGateway } from '../websocket/websocket.gateway';
+import { EmergencyGateway } from '../websocket/emergency.gateway';
 import { BullmqService } from '../shared/queues/bullMq';
 import { FirebaseService } from '../notification/firebase.service';
+import { DispatchService } from './service/dispatch.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   providers: [
+    EmergencyGateway,
     EmergencyService,
     PrismaService,
-    WebsocketGateway,
     BullmqService,
     FirebaseService,
+    DispatchService,
+    JwtService,
   ],
   controllers: [EmergencyController],
+  exports: [DispatchService],
 })
 export class EmergencyModule {}
