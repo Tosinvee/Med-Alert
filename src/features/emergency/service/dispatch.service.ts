@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/features/prisma/prisma.service';
 import { EmergencyService } from './emergency.service';
 import { CreateEmergencyDto } from '../dto/create-emergency.dto';
@@ -34,5 +38,42 @@ export class DispatchService {
       dispatches.push({ dispatch, medic });
     }
     return { emergency, dispatches };
+  }
+
+  async acceptEmergency(dispatchId: number, medicId: number) {
+    return this.prisma.$transaction(async (tx) => {
+      const dispatch = await tx.dispatch.findUnique({
+        where: { id: dispatchId },
+        include: { emergency: true },
+      });
+      if (!dispatch) throw new NotFoundException('Dispatch not found');
+
+      if (dispatch.status !== 'PENDING') {
+        throw new BadRequestException('Emergency already accepted');
+      }
+      //  Update the current dispatch to ASSIGNED
+      const updatedDispatch = await tx.dispatch.update({
+        where: { id: dispatchId },
+        data: {
+          status: 'ASSIGNED', // Assign the medic
+          medicId,
+          respondedAt: new Date(),
+        },
+      });
+
+      //  Cancel all other dispatches for the same emergency
+      await tx.dispatch.updateMany({
+        where: {
+          emergencyId: dispatch.emergencyId,
+          id: { not: dispatchId },
+        },
+        data: { status: 'CANCELLED' },
+      });
+      return {
+        emergency: dispatch.emergency,
+        patientId: dispatch.emergency.patientId,
+        dispatchStatus: updatedDispatch.status,
+      };
+    });
   }
 }

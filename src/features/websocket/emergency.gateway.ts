@@ -54,7 +54,7 @@ export class EmergencyGateway
     const { emergency, dispatches } =
       await this.dispatchService.handlePatientRequest(userId, dto);
 
-    // 🔔 Notify medics here
+    //  Notify medics here
     for (const item of dispatches) {
       this.server
         .to(`user_${item.medic.userId}`)
@@ -68,8 +68,15 @@ export class EmergencyGateway
     @MessageBody() payload: { dispatchId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    // const medicId = client.data.userId
-    // await this.dispatchService.
+    const medicId = client.data.userId;
+
+    const result = await this.dispatchService.acceptEmergency(
+      payload.dispatchId,
+      medicId,
+    );
+    this.server
+      .to(`user_${result.patientId}`)
+      .emit('emergency_accepted', result);
   }
 
   notifyUser(userId: number, event: string, payload: any) {

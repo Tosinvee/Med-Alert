@@ -86,7 +86,7 @@ model Dispatch {
   etaMinutes    Int?
   respondedAt   DateTime?
   completedAt   DateTime?
-  createdAt     DateTime         @default(now())
+   createdAt     DateTime         @default(now())
 }
 
 model DeviceToken {
@@ -117,6 +117,7 @@ model Admin {
 enum DispatchStatus {
   PENDING
   ACCEPTED
+  ASSIGNED
   REJECTED
   COMPLETED
   CANCELLED
