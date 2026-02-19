@@ -7,6 +7,7 @@ import { BullmqService } from '../shared/queues/bullMq';
 import { FirebaseService } from '../notification/firebase.service';
 import { DispatchService } from './service/dispatch.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   providers: [
@@ -17,6 +18,7 @@ import { JwtService } from '@nestjs/jwt';
     FirebaseService,
     DispatchService,
     JwtService,
+    ConfigService,
   ],
   controllers: [EmergencyController],
   exports: [DispatchService],

@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MedAlert Socket Test</title>
+  </head>
+  <body>
+    <h2>Socket Test</h2>
+
+    <input id="token" placeholder="Paste JWT token here" />
+    <button onclick="connect()">Connect</button>
+
+    <br /><br />
+
+    <input id="dispatchId" placeholder="Dispatch ID" />
+    <button onclick="acceptEmergency()">Accept Emergency</button>
+
+    <pre id="log"></pre>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script>
+      let socket;
+
+      function log(message) {
+        const logBox = document.getElementById('log');
+        logBox.innerHTML += message + '\n';
+      }
+
+      function connect() {
+        const token = document.getElementById('token').value;
+
+        socket = io('http://localhost:4000', {
+          auth: { token },
+        });
+
+        socket.on('connect', () => {
+          console.log('Connected:', socket.id);
+
+          log('✅ Connected: ' + socket.id);
+        });
+
+        socket.onAny((event, data) => {
+          log('📩 Event: ' + event);
+          log(JSON.stringify(data, null, 2));
+        });
+
+        socket.on('connect_error', (err) => {
+          log('❌ Error: ' + err.message);
+        });
+      }
+
+      function acceptEmergency() {
+        const dispatchId = Number(document.getElementById('dispatchId').value);
+
+        socket.emit('accept_emergency', { dispatchId });
+        log('🚑 Sent accept_emergency');
+      }
+    </script>
+  </body>
+</html>

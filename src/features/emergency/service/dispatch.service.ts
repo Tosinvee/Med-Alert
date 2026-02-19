@@ -44,9 +44,13 @@ export class DispatchService {
     return this.prisma.$transaction(async (tx) => {
       const dispatch = await tx.dispatch.findUnique({
         where: { id: dispatchId },
-        include: { emergency: true },
+        include: { emergency: true, medic: true },
       });
       if (!dispatch) throw new NotFoundException('Dispatch not found');
+
+      // if (dispatch.medic.userId !== medicId) {
+      //   throw new BadRequestException('This dispatch does not belong to you');
+      // }
 
       if (dispatch.status !== 'PENDING') {
         throw new BadRequestException('Emergency already accepted');
@@ -55,8 +59,7 @@ export class DispatchService {
       const updatedDispatch = await tx.dispatch.update({
         where: { id: dispatchId },
         data: {
-          status: 'ASSIGNED', // Assign the medic
-          medicId,
+          status: 'ACCEPTED', // Assign the medic
           respondedAt: new Date(),
         },
       });

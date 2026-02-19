@@ -5,7 +5,7 @@ config();
 const { env } = process;
 
 export const environments = {
-  port: Number(env.PORT || 5000),
+  port: Number(env.PORT || 4000),
   emailHost: env.MAIL_HOST,
   emailUser: env.SMTP_USERNAME,
   emailPass: env.SMTP_PASSWORD,

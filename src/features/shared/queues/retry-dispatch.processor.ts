@@ -1,13 +1,11 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { FirebaseService } from '../../notification/firebase.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { EmergencyGateway } from '../../websocket/emergency.gateway';
 
 @Processor('retry-dispatch')
 export class RetryDispatchProcessor extends WorkerHost {
   constructor(
     private prisma: PrismaService,
-    private ws: EmergencyGateway,
     private notifications: FirebaseService,
   ) {
     super();

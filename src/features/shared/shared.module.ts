@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { RetryDispatchProcessor } from './queues/retry-dispatch.processor';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmergencyGateway } from '../websocket/emergency.gateway';
-import { FirebaseService } from '../notification/firebase.service';
 import { JwtService } from '@nestjs/jwt';
 import { EmergencyModule } from '../emergency/emergency.module';
+import { FirebaseService } from '../notification/firebase.service';
 
 @Module({
   imports: [EmergencyModule],
@@ -13,7 +12,6 @@ import { EmergencyModule } from '../emergency/emergency.module';
     RetryDispatchProcessor,
     PrismaService,
     FirebaseService,
-    EmergencyGateway,
   ],
 })
 export class SharedModule {}

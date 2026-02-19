@@ -52,6 +52,7 @@ export class AuthService {
 
   async startEmailVerification(email: string) {
     const { otp, hashedOtp, expiresAt } = await this.otpService.generateOtp();
+    console.log(otp);
     await this.prisma.$transaction([
       this.prisma.otp.deleteMany({
         where: {
@@ -100,7 +101,7 @@ export class AuthService {
     };
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: this.configService.getOrThrow('JWT_SECRET'),
-      expiresIn: this.configService.getOrThrow('JWT_EXPIRATION'),
+      expiresIn: Number(this.configService.getOrThrow('JWT_EXPIRATION')),
     });
     return {
       accessToken,
