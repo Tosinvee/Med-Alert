@@ -5,9 +5,10 @@ import { FeaturesModule } from './features/features.module';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ExceptionsFilter } from './core/filter/exceptions.filter';
 import { ResponseInterceptor } from './core/response/responseInterceptor';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
-  imports: [FeaturesModule],
+  imports: [FeaturesModule, RedisModule],
   controllers: [AppController],
   providers: [
     AppService,
