@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { FirebaseService } from '../../notification/firebase.service';
 import { CreateEmergencyDto } from '../dto/create-emergency.dto';
 import { generateCustomId } from '../../shared/utils/generate-customId';
 import { BullmqService } from '../../shared/queues/bullMq';
@@ -10,7 +9,6 @@ export class EmergencyService {
   constructor(
     private prisma: PrismaService,
     private queue: BullmqService,
-    private notifications: FirebaseService,
   ) {}
 
   async calculateDistance(

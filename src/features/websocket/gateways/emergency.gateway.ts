@@ -9,9 +9,9 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { DispatchService } from '../emergency/service/dispatch.service';
+import { DispatchService } from '../../emergency/service/dispatch.service';
 import { NotFoundException } from '@nestjs/common';
-import { CreateEmergencyDto } from '../emergency/dto/create-emergency.dto';
+import { CreateEmergencyDto } from '../../emergency/dto/create-emergency.dto';
 import { ConfigService } from '@nestjs/config';
 
 @WebSocketGateway({

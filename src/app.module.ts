@@ -5,10 +5,12 @@ import { FeaturesModule } from './features/features.module';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ExceptionsFilter } from './core/filter/exceptions.filter';
 import { ResponseInterceptor } from './core/response/responseInterceptor';
-import { RedisModule } from './redis/redis.module';
+import { RedisModule } from './features/redis/redis.module';
+import { NotificationModule } from './features/notification/notification.module';
+import { FirebaseModule } from './features/firebase/firebase.module';
 
 @Module({
-  imports: [FeaturesModule, RedisModule],
+  imports: [FeaturesModule, RedisModule, NotificationModule, FirebaseModule],
   controllers: [AppController],
   providers: [
     AppService,

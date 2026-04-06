@@ -6,7 +6,8 @@ import { SharedModule } from './shared/shared.module';
 import { MailModule } from './mail/mail.module';
 import { OtpModule } from './otp/otp.module';
 import { EmergencyModule } from './emergency/emergency.module';
-import { FirebaseModule } from './notification/firebase.module';
+import { FirebaseModule } from './firebase/firebase.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FirebaseModule } from './notification/firebase.module';
     OtpModule,
     EmergencyModule,
     FirebaseModule,
+    NotificationModule,
   ],
 })
 export class FeaturesModule {}
