@@ -10,9 +10,14 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { DispatchService } from '../../emergency/service/dispatch.service';
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { CreateEmergencyDto } from '../../emergency/dto/create-emergency.dto';
 import { ConfigService } from '@nestjs/config';
+import { UserType } from '@prisma/client';
+import {
+  PresenceService,
+  Role,
+} from 'src/features/notification/presence.service';
 
 @WebSocketGateway({
   cors: {
@@ -22,6 +27,7 @@ import { ConfigService } from '@nestjs/config';
 export class EmergencyGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly logger = new Logger(EmergencyGateway.name);
   @WebSocketServer()
   server: Server;
 
@@ -29,33 +35,57 @@ export class EmergencyGateway
     private readonly jwtService: JwtService,
     private readonly dispatchService: DispatchService,
     private readonly configService: ConfigService,
+    private readonly presenceService: PresenceService,
   ) {}
 
-  // private userSockets = new Map<number, string>();
+  private getRoom(role: UserType, id: number | string): string {
+    return `${role}_${id}`;
+  }
 
   async handleConnection(client: Socket) {
     console.log('New client trying to connect, socket id:', client.id);
     try {
-      const { token } = client.handshake.auth;
-      console.log('Handshake auth token:', token);
+      const token = client.handshake.auth?.token;
 
-      if (!token) throw new NotFoundException('Token not found');
+      if (!token) {
+        this.logger.warn('Socket connection rejected: No token');
+        return client.disconnect();
+      }
 
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.getOrThrow('JWT_SECRET'),
       });
       const userId = payload.sub;
-      client.data.userId = userId;
-      client.join(`user_${userId}`);
-      console.log(`User ${userId} joined room user_${userId}`);
+      const userType = payload.role as UserType;
+
+      //attach user to socket
+      client.data.user = { userId, userType };
+
+      const room = this.getRoom(userType, userId);
+      await client.join(room);
+
+      if (userType === UserType.MEDIC) {
+        await this.presenceService.markOnline(String(userId), Role.MEDIC);
+      }
+
+      this.logger.log(`${userType} ${userId} connected | Socket: ${client.id}`);
     } catch (err) {
-      console.log(' Connection failed:', err.message);
+      this.logger.error(`Connection failed: ${err.message}`);
       client.disconnect();
     }
   }
   async handleDisconnect(client: Socket) {
-    const userId = client.data.userId ?? 'unknown';
-    console.log(`User ${userId} disconnected. Socket ID: ${client.id}`);
+    const user = client.data.user;
+
+    if (!user) return;
+
+    const { userId, userType } = user;
+
+    if (userType === UserType.MEDIC) {
+      await this.presenceService.markOffline(String(userId), Role.MEDIC);
+    }
+
+    this.logger.log(`${userType} ${userId} disconnected`);
   }
 
   @SubscribeMessage('service_request')

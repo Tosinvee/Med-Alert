@@ -14,7 +14,7 @@ export class RedisService {
   }
 
   async get(key: string) {
-    await this.client.get(key);
+    return this.client.get(key);
   }
 
   async sAdd(key: string, value: string) {
@@ -28,13 +28,28 @@ export class RedisService {
   async sMembers(key: string) {
     return this.client.smembers(key);
   }
+  async sIsMember(key: string, member: string): Promise<boolean> {
+    return (await this.client.sismember(key, member)) === 1;
+  }
 
+  //save location
   async geoAdd(key: string, lng: number, lat: number, member: string) {
     await this.client.geoadd(key, lng, lat, member);
   }
+  //Get location
+  async getPos(key: string, member: string) {
+    return this.client.geopos(key, member);
+  }
 
-  async geoRadius(key: string, lng: number, lat: number, radius: number) {
-    await this.client.georadius(key, lng, lat, radius, 'km');
+  //Find nearby users
+  async geoRadius(
+    key: string,
+    lng: number,
+    lat: number,
+    radius: number,
+  ): Promise<string[]> {
+    const result = await this.client.georadius(key, lng, lat, radius, 'km');
+    return result.map((id) => String(id));
   }
 
   getClient() {
