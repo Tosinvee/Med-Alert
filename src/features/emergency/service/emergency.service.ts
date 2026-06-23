@@ -13,27 +13,7 @@ export class EmergencyService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async calculateDistance(
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number,
-  ) {
-    const R = 6371; // km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) ** 2;
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
-
-  async createEmergency(userId: number, dto?: CreateEmergencyDto) {
+  async createEmergency(userId: number, dto: CreateEmergencyDto) {
     const patient = await this.prisma.patient.findUnique({
       where: { userId },
       include: { user: true },
@@ -54,39 +34,5 @@ export class EmergencyService {
     });
     this.eventEmitter.emit('emergency.created', emergency);
     return emergency;
-  }
-
-  async getTopNearestMedic(emergencyLat: number, emergencyLng: number) {
-    const medics = await this.prisma.medic.findMany({
-      where: {
-        isAvailable: true,
-        user: {
-          latitude: { not: null },
-          longitude: { not: null },
-        },
-      },
-      include: { user: true },
-    });
-
-    if (!medics.length) throw new NotFoundException('No available medics');
-
-    // Map to promises
-    const medicDistances = await Promise.all(
-      medics.map(async (medic) => ({
-        medic,
-        distance: await this.calculateDistance(
-          emergencyLat,
-          emergencyLng,
-          medic.user.latitude!,
-          medic.user.longitude!,
-        ),
-      })),
-    );
-
-    // Sort by distance
-    medicDistances.sort((a, b) => a.distance - b.distance);
-
-    // Return top 3
-    return medicDistances.slice(0, 3).map((item) => item.medic);
   }
 }

@@ -4,20 +4,16 @@ import {
   OnGatewayConnection,
   WebSocketServer,
   OnGatewayDisconnect,
-  SubscribeMessage,
-  ConnectedSocket,
-  MessageBody,
+  // SubscribeMessage,
+  // ConnectedSocket,
+  // MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { DispatchService } from '../../emergency/service/dispatch.service';
-import { Logger, NotFoundException } from '@nestjs/common';
-import { CreateEmergencyDto } from '../../emergency/dto/create-emergency.dto';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserType } from '@prisma/client';
-import {
-  PresenceService,
-  Role,
-} from 'src/features/notification/presence.service';
+import { PresenceService } from 'src/features/notification/presence.service';
 
 @WebSocketGateway({
   cors: {
@@ -65,7 +61,7 @@ export class EmergencyGateway
       await client.join(room);
 
       if (userType === UserType.MEDIC) {
-        await this.presenceService.markOnline(String(userId), Role.MEDIC);
+        await this.presenceService.markOnline(String(userId));
       }
 
       this.logger.log(`${userType} ${userId} connected | Socket: ${client.id}`);
@@ -82,51 +78,30 @@ export class EmergencyGateway
     const { userId, userType } = user;
 
     if (userType === UserType.MEDIC) {
-      await this.presenceService.markOffline(String(userId), Role.MEDIC);
+      await this.presenceService.markOffline(String(userId));
     }
 
     this.logger.log(`${userType} ${userId} disconnected`);
   }
 
-  @SubscribeMessage('service_request')
-  async handleServiceRequest(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() dto?: CreateEmergencyDto,
-  ) {
-    const userId = client.data.userId;
-    console.log(`Received service request from user ${userId}`);
-
-    const { emergency, dispatches } =
-      await this.dispatchService.handlePatientRequest(userId, dto);
-
-    //  Notify medics here
-    for (const item of dispatches) {
-      console.log(`Sending emergency to medic ${item.medic.userId}`);
-      this.server
-        .to(`user_${item.medic.userId}`)
-        .emit('new_emergency', emergency);
-    }
-
-    return { message: 'Emergency sent to nearest medics' };
-  }
-  @SubscribeMessage('accept_emergency')
-  async handleAccept(
-    @MessageBody() payload: { dispatchId: number },
-    @ConnectedSocket() client: Socket,
-  ) {
-    const medicId = client.data.userId;
-    console.log(
-      `Medic ${medicId} is trying to accept dispatch ${payload.dispatchId}`,
-    );
-    const result = await this.dispatchService.acceptEmergency(
-      payload.dispatchId,
-      medicId,
-    );
-    console.log(' Dispatch accepted result:', result);
-    this.server
-      .to(`user_${result.patientId}`)
-      .emit('emergency_accepted', result);
-  }
+  // @SubscribeMessage('accept_emergency')
+  // async handleAccept(
+  //   @MessageBody() payload: { dispatchId: number },
+  //   @ConnectedSocket() client: Socket,
+  // ) {
+  //   const medicId = client.data.userId;
+  //   console.log(
+  //     `Medic ${medicId} is trying to accept dispatch ${payload.dispatchId}`,
+  //   );
+  //   const result = await this.dispatchService.acceptEmergency(
+  //     payload.dispatchId,
+  //     medicId,
+  //   );
+  //   console.log(' Dispatch accepted result:', result);
+  //   this.server
+  //     .to(`user_${result.patientId}`)
+  //     .emit('emergency_accepted', result);
+  // }
 
   notifyUser(userId: number, event: string, payload: any) {
     this.server.to(`user${userId}`).emit(event, payload);

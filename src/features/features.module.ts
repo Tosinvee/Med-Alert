@@ -8,6 +8,7 @@ import { OtpModule } from './otp/otp.module';
 import { EmergencyModule } from './emergency/emergency.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { NotificationModule } from './notification/notification.module';
+import { WorkerModule } from './worker/worker.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationModule } from './notification/notification.module';
     EmergencyModule,
     FirebaseModule,
     NotificationModule,
+    WorkerModule,
   ],
 })
 export class FeaturesModule {}

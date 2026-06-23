@@ -12,18 +12,26 @@ export class PresenceService {
 
   // -------------------- KEY HELPER --------------------
   private getKey(role: Role): string {
-    return `online_${role.toLowerCase()}s`; // e.g. online_medics
+    return `online_${role.toLowerCase()}s`;
   }
 
   // -------------------- ONLINE --------------------
-  async markOnline(userId: string, role: Role) {
-    await this.redis.sAdd(this.getKey(role), userId);
+  // async markOnline(userId: string, role: Role) {
+  //   await this.redis.sAdd(this.getKey(role), userId);
+  // }
+
+  async markOnline(medicId: string) {
+    await this.redis.sAdd('online:medics', medicId);
   }
 
   // -------------------- OFFLINE --------------------
-  async markOffline(userId: string, role: Role) {
-    const key = this.getKey(role);
-    await this.redis.getClient().srem(key, userId); // using raw client (simple)
+  // async markOffline(userId: string, role: Role) {
+  //   const key = this.getKey(role);
+  //   await this.redis.getClient().srem(key, userId);
+  // }
+
+  async markOffline(medicId: string) {
+    await this.redis.sRem('online:medics', medicId);
   }
 
   // -------------------- CHECK --------------------
@@ -38,16 +46,29 @@ export class PresenceService {
   }
 
   // -------------------- LOCATION --------------------
-  async updateLocation(userId: string, lng: number, lat: number) {
-    await this.redis.geoAdd('locations', lng, lat, userId);
+  async updateLocation(medicId: string, lat: number, lng: number) {
+    await this.redis.geoAdd('medics:locations', lng, lat, medicId);
   }
 
   // -------------------- FIND NEARBY --------------------
-  async getNearby(
-    lng: number,
-    lat: number,
-    radiusKm: number = 5,
-  ): Promise<string[]> {
-    return this.redis.geoRadius('locations', lng, lat, radiusKm);
+  async getNearby(lat: number, lng: number, radiusKm: number) {
+    const nearbyIds = await this.redis.geoSearch(
+      'medics:locations',
+      lng,
+      lat,
+      radiusKm,
+    );
+
+    const onlineMedics: string[] = [];
+
+    for (const medicId of nearbyIds) {
+      const isOnline = await this.redis.sIsMember('online:medics', medicId);
+
+      if (isOnline) {
+        onlineMedics.push(medicId);
+      }
+    }
+
+    return onlineMedics;
   }
 }

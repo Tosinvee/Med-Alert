@@ -19,8 +19,6 @@ export class EmergencyController {
     @CurrentUser() user: User,
     @Body() body: CreateEmergencyDto,
   ) {
-    const { emergency, dispatches } =
-      await this.dispatchService.handlePatientRequest(user.id, body);
-    return { emergency, dispatches };
+    await this.emergencyService.createEmergency(user.id, body);
   }
 }

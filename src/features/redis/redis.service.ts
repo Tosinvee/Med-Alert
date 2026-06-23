@@ -42,14 +42,27 @@ export class RedisService {
   }
 
   //Find nearby users
-  async geoRadius(
+  async geoSearch(
     key: string,
     lng: number,
     lat: number,
-    radius: number,
+    radiusKm: number,
+    count = 50,
   ): Promise<string[]> {
-    const result = await this.client.georadius(key, lng, lat, radius, 'km');
-    return result.map((id) => String(id));
+    const result = await this.client.geosearch(
+      key,
+      'FROMLONLAT',
+      lng,
+      lat,
+      'BYRADIUS',
+      radiusKm,
+      'km',
+      'ASC',
+      'COUNT',
+      count,
+    );
+
+    return result.map(String);
   }
 
   getClient() {
